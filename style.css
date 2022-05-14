@@ -1,0 +1,29 @@
+body {
+    background: #000000;
+}
+
+.container {
+    background: #8d8d8d;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0px 0px;
+    justify-content: flex-start;
+    align-items: flex-end;
+    height: 500px;
+}
+
+.element {
+    /* background: linear-gradient(to top, #181818 0%, #474747 100%); */
+    text-align: center;
+    /* margin: auto; */
+}
+
+.active {
+    background: linear-gradient(to top, #ff0000 0%, #ff0000 100%) !important;
+}
+
+.compare {
+    background: linear-gradient(to top, #3cff00 0%, #2bff00 100%) !important;
+}
