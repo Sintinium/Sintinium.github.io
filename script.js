@@ -286,7 +286,7 @@ function getElementValue(element) {
 function playSound(pitch) {
     var oscillator = new OscillatorNode(context);
     let gain = new GainNode(context);
-    gain.gain.value = 0.1;
+    gain.gain.value = .005;
     oscillator.type = "square";
     oscillator.frequency.value = maxFreq - (maxFreq - minFreq) * (1 - pitch);
     oscillator.connect(gain).connect(context.destination);
