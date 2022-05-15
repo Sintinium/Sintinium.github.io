@@ -27,3 +27,28 @@ body {
 .compare {
     background: linear-gradient(to top, #3cff00 0%, #2bff00 100%) !important;
 }
+
+.slider {
+    display: flex;
+    color: white;
+    align-items: center;
+}
+
+#speed {
+    width: 25%;
+}
+
+.count-slider {
+    display: flex;
+    color: white;
+    align-items: center;
+}
+
+#count {
+    width: 25%;
+}
+
+#stats {
+    position: absolute;
+    color: white;
+}

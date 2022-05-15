@@ -10,6 +10,7 @@
 </head>
 
 <body>
+  <div id="stats">delay</div>
   <div class="container"></div>
   <div class="controls">
     <button id="play" onclick="play();">Play</button>
@@ -25,7 +26,15 @@
     </select>
   </div>
   <div class="slider">
-    <input type="range" min="1" max="100" value="10" id="speed" oninput="setSpeed();">
+    <p>Delay:</p>
+    <input type="range" min="4.47" max="100" value="10.0" id="speed" step=".1" oninput="setSpeed();">
+    <p>10ms</p>
+  </div>
+
+  <div class="count-slider">
+    <p>Amount:</p>
+    <input type="range" min="0" max="5" value="2" id="count" step="1" oninput="setCount();">
+    <p>100</p>
   </div>
 </body>
 

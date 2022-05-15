@@ -6,30 +6,16 @@ let lastSelected = null;
 let lastCompared = null;
 let isPlaying = false;
 
-let currentInterval = null;
-let speed = 10;
+let delay = 10;
+let elementCount = 300;
 let solver = null;
 
 function onDomReady() {
+    setCount();
     setType();
     setSpeed();
+    createElementsArray();
 
-    let container = document.getElementsByClassName("container")[0];
-    let elementCount = 300;
-    for (let i = 0; i < elementCount; i++) {
-        let div = document.createElement("div");
-        div.classList.add("element");
-        div.style.background = "linear-gradient(to top, #181818 0%, #474747 100%)";
-        // let text = document.createTextNode(i);
-        // div.appendChild(text);
-        div.style.width = "5px";
-        div.style.height = (i + 1) / elementCount * 100 + "%";
-        div.setAttribute("value", i);
-        // div.style.width = "20px";
-        // div.style.height = "100px";
-        container.appendChild(div);
-        elements.push(div);
-    }
     // setInterval(function () {
     //     let child = document.querySelector(".container > div:first-child");
     //     let child1 = document.querySelector(".container > div:nth-child(2)");
@@ -39,7 +25,7 @@ function onDomReady() {
     // img.src = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
     // document.body.appendChild(img);
     // randomize();
-    updateElementsOrder();
+
 
     // let o = quickSort(0, elements.length - 1);
     // let o = solveHeap();
@@ -52,6 +38,30 @@ function onDomReady() {
     // }, 10);
 }
 
+function createElementsArray() {
+    let container = document.getElementsByClassName("container")[0];
+    container.textContent = "";
+    elements = [];
+
+    for (let i = 0; i < elementCount; i++) {
+        let div = document.createElement("div");
+        div.classList.add("element");
+        div.style.background = "linear-gradient(to top, #181818 0%, #474747 100%)";
+        // let text = document.createTextNode(i);
+        // div.appendChild(text);
+
+        // FIXME: Element count needs - 4 for some reason?
+        div.style.width = 100 / (elementCount - 4) + "%";
+        div.style.height = (i + 1) / elementCount * 100 + "%";
+        div.setAttribute("value", i);
+        // div.style.width = "20px";
+        // div.style.height = "100px";
+        container.appendChild(div);
+        elements.push(div);
+    }
+    updateElementsOrder();
+}
+
 function play() {
     if (isPlaying) {
         reset();
@@ -60,17 +70,100 @@ function play() {
     document.getElementById("play").innerHTML = "Stop";
     isPlaying = true;
     let o = solver();
-    currentInterval = setInterval(function () {
+
+    let lastTime = performance.now();
+    let i = 0;
+    let diffTime = 0;
+
+    let totalTime = 0;
+    let rollingIndex = 0;
+    let samples = Array(40).fill(0);
+
+
+    function addRollingTime(time) {
+        totalTime -= samples[rollingIndex];
+        samples[rollingIndex] = time;
+        totalTime += time;
+        rollingIndex++;
+        if (rollingIndex >= samples.length) {
+            rollingIndex = 0;
+        }
+    }
+
+    let run = function () {
+        if (!isPlaying) {
+            return;
+        }
+
+        let current = performance.now();
+        if (diffTime < delay && current - lastTime < delay) {
+            setTimeout(run, 0);
+            return;
+        }
+
         let next = o.next();
+        addRollingTime(current - lastTime);
+
+        i++;
+        if (i % 15 === 0) {
+            // updateStats(Math.round((current - lastTime)));
+            updateStats(Math.round(totalTime / samples.length));
+        }
+        if (current - lastTime > delay) {
+            diffTime += current - lastTime - delay;
+        }
+        lastTime = current;
+
+
         if (next.done) {
             reset();
         }
-    }, speed);
+
+        if (diffTime < delay) {
+            setTimeout(run, 0);
+        }
+        while (diffTime >= delay) {
+            diffTime -= delay;
+            run();
+        }
+
+    }
+    setTimeout(run, 0);
+}
+
+function updateStats(delay) {
+    document.getElementById("stats").innerHTML = "Delay: " + delay + "ms";
 }
 
 function setSpeed() {
-    speed = document.getElementById("speed").value;
+    let slider = parseFloat(document.getElementById("speed").value);
+    delay = (.05 * Math.pow(slider, 2)).toFixed(2);
+    if (delay == 0) {
+        delay = .01;
+    }
+    // if (delay - Math.floor(delay) < .05) {
+    //     delay = Math.floor(delay);
+    // }
+    // if (Math.ceil(delay) - delay < .05) {
+    //     delay = Math.ceil(delay);
+    // }
+
+    if (delay > 10) {
+        delay = Math.round(delay);
+    } else {
+        delay = (Math.round(delay * 2) / 2);
+    }
+    // if (delay > 99.8) {
+    //     delay = 100;
+    // }
+    document.getElementsByClassName("slider")[0].getElementsByTagName("p")[1].innerHTML = delay + "ms";
+}
+
+function setCount() {
+    let slider = parseInt(document.getElementById("count").value);
+    elementCount = Math.pow(2, slider + 5)
     reset();
+    document.getElementsByClassName("count-slider")[0].getElementsByTagName("p")[1].innerHTML = elementCount;
 }
 
 function resetAndRandomize() {
@@ -80,14 +173,9 @@ function resetAndRandomize() {
 }
 
 function reset() {
-    if (!isPlaying) {
-        return;
-    }
     isPlaying = false;
     document.getElementById("play").innerHTML = "Play";
-    clearInterval(currentInterval);
-    currentInterval = null;
-    resetElements();
+    createElementsArray();
 }
 
 function setType() {
@@ -206,29 +294,29 @@ function* merge(low, mid, high) {
     for (let i = low; i <= high; i++) {
         temp[i] = elements[i];
     }
+
     for (let i = low; i <= high; i++) {
         if (left <= mid && right <= high) {
             if (getElementValue(temp[left]) < getElementValue(temp[right])) {
                 elements[i] = temp[left];
-                setCompareElement(elements[right]);
-                playSoundFrom(elements[i]);
+                setCompareElement(temp[right]);
                 left++;
             } else {
                 elements[i] = temp[right];
-                setCompareElement(elements[left]);
-                playSoundFrom(elements[i]);
+                setCompareElement(temp[left]);
                 right++;
             }
         } else if (left <= mid) {
             elements[i] = temp[left];
-            playSoundFrom(elements[i]);
+            setCompareElement(temp[mid])
             left++;
         } else {
             elements[i] = temp[right];
-            playSoundFrom(elements[i]);
+            setCompareElement(temp[mid])
             right++;
         }
         setActiveElement(elements[i]);
+        playSoundFrom(elements[i]);
         updateElementsOrder();
         yield;
     }
@@ -306,6 +394,13 @@ function randomize() {
     }
 }
 
+function updateElementsOrderArr(elems) {
+    let container = document.getElementsByClassName("container")[0];
+    for (let i = 0; i < elems.length; i++) {
+        elems[i].style.order = i;
+    }
+}
+
 function updateElementsOrder() {
     let container = document.getElementsByClassName("container")[0];
     for (let i = 0; i < elements.length; i++) {
@@ -329,15 +424,6 @@ function setCompareElement(element) {
     }
     element.classList.add("compare");
     lastCompared = element;
-}
-
-function resetElements() {
-    if (lastSelected) {
-        lastSelected.classList.remove("active");
-    }
-    if (lastCompared) {
-        lastCompared.classList.remove("compare");
-    }
 }
 
 function swap(i, j) {
