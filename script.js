@@ -43,6 +43,9 @@ function createElementsArray() {
     container.textContent = "";
     elements = [];
 
+    let containerWidth = container.clientWidth;
+    let containerHeight = container.clientHeight;
+    console.log(containerWidth, containerHeight);
     for (let i = 0; i < elementCount; i++) {
         let div = document.createElement("div");
         div.classList.add("element");
@@ -51,8 +54,15 @@ function createElementsArray() {
         // div.appendChild(text);
 
         // FIXME: Element count needs - 4 for some reason?
-        div.style.width = 100 / (elementCount - 4) + "%";
+        div.style.width = 100 / elementCount + .01 + "%";
         div.style.height = (i + 1) / elementCount * 100 + "%";
+        div.style.left = i / elementCount * (100) + "%";
+        div.style.bottom = 0 + "%";
+        // div.style.transform = "scale(1, -1)";
+        // div.style.width = containerWidth / (elementCount) + "px";
+        // div.style.height = containerHeight * ((i + 1) / elementCount) + "px";
+        // div.style.left = containerWidth * ((i + 1) / elementCount) + "px";
+        // div.style.bottom = containerHeight + "px";
         div.setAttribute("value", i);
         // div.style.width = "20px";
         // div.style.height = "100px";
@@ -116,7 +126,24 @@ function play() {
 
 
         if (next.done) {
-            reset();
+            let anim = function*() {
+                for (let i = 0; i < elements.length; i++) {
+                    setCompareElement(elements[i]);
+                    playSoundFrom(elements[i]);
+                    yield;
+                }
+            }
+            let a = anim();
+            let animPlayer = function() {
+                let next = a.next();
+                if (!next.done) {
+                    setTimeout(animPlayer, 1);
+                } else {
+                    reset();
+                }
+            }
+            setTimeout(animPlayer, 1);
+            isPlaying = false;
         }
 
         if (diffTime < delay) {
@@ -152,6 +179,9 @@ function setSpeed() {
         delay = Math.round(delay);
     } else {
         delay = (Math.round(delay * 2) / 2);
+    }
+    if (delay == 1) {
+        delay = 2;
     }
     // if (delay > 99.8) {
     //     delay = 100;
@@ -291,33 +321,39 @@ function* merge(low, mid, high) {
     let left = low;
     let right = mid + 1;
     let temp = [];
+    let sorted = []
     for (let i = low; i <= high; i++) {
         temp[i] = elements[i];
+        sorted[i] = elements[i];
     }
 
     for (let i = low; i <= high; i++) {
         if (left <= mid && right <= high) {
             if (getElementValue(temp[left]) < getElementValue(temp[right])) {
-                elements[i] = temp[left];
+                sorted[i] = temp[left];
                 setCompareElement(temp[right]);
                 left++;
             } else {
-                elements[i] = temp[right];
+                sorted[i] = temp[right];
                 setCompareElement(temp[left]);
                 right++;
             }
         } else if (left <= mid) {
-            elements[i] = temp[left];
+            sorted[i] = temp[left];
             setCompareElement(temp[mid])
             left++;
         } else {
-            elements[i] = temp[right];
+            sorted[i] = temp[right];
             setCompareElement(temp[mid])
             right++;
         }
-        setActiveElement(elements[i]);
-        playSoundFrom(elements[i]);
-        updateElementsOrder();
+        setActiveElement(sorted[i]);
+        playSoundFrom(sorted[i]);
+        yield;
+    }
+    for (let i = low; i <= high; i++) {
+        elements[i] = sorted[i];
+        elements[i].style.left = i / elementCount * (100) + "%";
         yield;
     }
 }
@@ -404,7 +440,7 @@ function updateElementsOrderArr(elems) {
 function updateElementsOrder() {
     let container = document.getElementsByClassName("container")[0];
     for (let i = 0; i < elements.length; i++) {
-        elements[i].style.order = i;
+        elements[i].style.left = i / elementCount * (100) + "%";
     }
 }
 
