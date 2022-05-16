@@ -227,6 +227,9 @@ function setType() {
         case "heap":
             solver = heap;
             break;
+        case "merge-bottom-up":
+            solver = mergeBottomUp;
+            break;
     }
     if (oldSolver !== solver) {
         reset();
@@ -308,6 +311,13 @@ let mergeSolver = function* solveMerge() {
     yield* mergeSort(0, elements.length - 1);
 }
 
+let mergeBottomUpSolver = function* mergeBottomUp() {
+}
+
+function* mergeBottomUp() {
+
+}
+
 function* mergeSort(low, high) {
     if (low < high) {
         let mid = Math.floor((low + high) / 2);
@@ -321,39 +331,36 @@ function* merge(low, mid, high) {
     let left = low;
     let right = mid + 1;
     let temp = [];
-    let sorted = []
     for (let i = low; i <= high; i++) {
         temp[i] = elements[i];
-        sorted[i] = elements[i];
     }
 
     for (let i = low; i <= high; i++) {
         if (left <= mid && right <= high) {
             if (getElementValue(temp[left]) < getElementValue(temp[right])) {
-                sorted[i] = temp[left];
+                elements[i] = temp[left];
                 setCompareElement(temp[right]);
+                updateElement(i);
                 left++;
             } else {
-                sorted[i] = temp[right];
+                elements[i] = temp[right];
                 setCompareElement(temp[left]);
+                updateElement(i);
                 right++;
             }
         } else if (left <= mid) {
-            sorted[i] = temp[left];
+            elements[i] = temp[left];
             setCompareElement(temp[mid])
+            updateElement(i);
             left++;
         } else {
-            sorted[i] = temp[right];
+            elements[i] = temp[right];
             setCompareElement(temp[mid])
+            updateElement(i);
             right++;
         }
-        setActiveElement(sorted[i]);
-        playSoundFrom(sorted[i]);
-        yield;
-    }
-    for (let i = low; i <= high; i++) {
-        elements[i] = sorted[i];
-        elements[i].style.left = i / elementCount * (100) + "%";
+        setActiveElement(elements[i]);
+        playSoundFrom(elements[i]);
         yield;
     }
 }
@@ -442,6 +449,10 @@ function updateElementsOrder() {
     for (let i = 0; i < elements.length; i++) {
         elements[i].style.left = i / elementCount * (100) + "%";
     }
+}
+
+function updateElement(i) {
+    elements[i].style.left = i / elementCount * (100) + "%";
 }
 
 function setActiveElement(element) {
