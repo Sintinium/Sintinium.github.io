@@ -126,24 +126,26 @@ function play() {
 
 
         if (next.done) {
-            let anim = function*() {
-                for (let i = 0; i < elements.length; i++) {
-                    setCompareElement(elements[i]);
-                    playSoundFrom(elements[i]);
-                    yield;
-                }
-            }
-            let a = anim();
-            let animPlayer = function() {
-                let next = a.next();
-                if (!next.done) {
-                    setTimeout(animPlayer, 1);
-                } else {
-                    reset();
-                }
-            }
-            setTimeout(animPlayer, 1);
-            isPlaying = false;
+            // let anim = function* () {
+            //     for (let i = 0; i < elements.length; i++) {
+            //         setCompareElement(elements[i]);
+            //         playSoundFrom(elements[i]);
+            //         yield;
+            //     }
+            // }
+            // let a = anim();
+            // let animPlayer = function () {
+            //     let next = a.next();
+            //     if (!next.done) {
+            //         setTimeout(animPlayer, 1);
+            //     } else {
+            //         reset();
+            //     }
+            // }
+            // setTimeout(animPlayer, 1);
+            // isPlaying = false;
+            reset();
+            return;
         }
 
         if (diffTime < delay) {
@@ -228,7 +230,7 @@ function setType() {
             solver = heap;
             break;
         case "merge-bottom-up":
-            solver = mergeBottomUp;
+            solver = mergeBottomUpSolver;
             break;
     }
     if (oldSolver !== solver) {
@@ -311,11 +313,19 @@ let mergeSolver = function* solveMerge() {
     yield* mergeSort(0, elements.length - 1);
 }
 
-let mergeBottomUpSolver = function* mergeBottomUp() {
+let mergeBottomUpSolver = function* () {
+    for (let i = 1; i < elements.length; i *= 2) {
+        for (let j = 0; j < elements.length - i; j += i * 2) {
+            yield* merge(j, j + i - 1, Math.min(j + i * 2 - 1, elements.length - 1));
+        }
+    }
 }
 
-function* mergeBottomUp() {
-
+function* mergeBottomUp(left, right, mid, rightEnd) {
+    if (left < right) {
+        yield* mergeBottomUp(left, mid, mid + 1, rightEnd);
+        yield* merge(left, mid, right);
+    }
 }
 
 function* mergeSort(low, high) {
@@ -417,7 +427,7 @@ function getElementValue(element) {
 function playSound(pitch) {
     var oscillator = new OscillatorNode(context);
     let gain = new GainNode(context);
-    gain.gain.value = .005;
+    gain.gain.value = .01;
     oscillator.type = "square";
     oscillator.frequency.value = maxFreq - (maxFreq - minFreq) * (1 - pitch);
     oscillator.connect(gain).connect(context.destination);
