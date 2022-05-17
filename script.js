@@ -9,6 +9,7 @@ let isPlaying = false;
 let delay = 10;
 let elementCount = 300;
 let solver = null;
+let diffFrame = false;
 
 function onDomReady() {
     setCount();
@@ -45,7 +46,6 @@ function createElementsArray() {
 
     let containerWidth = container.clientWidth;
     let containerHeight = container.clientHeight;
-    console.log(containerWidth, containerHeight);
     for (let i = 0; i < elementCount; i++) {
         let div = document.createElement("div");
         div.classList.add("element");
@@ -106,7 +106,7 @@ function play() {
         }
 
         let current = performance.now();
-        if (diffTime < delay && current - lastTime < delay) {
+        if (!diffFrame && current - lastTime < delay) {
             setTimeout(run, 0);
             return;
         }
@@ -126,36 +126,20 @@ function play() {
 
 
         if (next.done) {
-            // let anim = function* () {
-            //     for (let i = 0; i < elements.length; i++) {
-            //         setCompareElement(elements[i]);
-            //         playSoundFrom(elements[i]);
-            //         yield;
-            //     }
-            // }
-            // let a = anim();
-            // let animPlayer = function () {
-            //     let next = a.next();
-            //     if (!next.done) {
-            //         setTimeout(animPlayer, 1);
-            //     } else {
-            //         reset();
-            //     }
-            // }
-            // setTimeout(animPlayer, 1);
-            // isPlaying = false;
             reset();
             return;
         }
 
-        if (diffTime < delay) {
-            setTimeout(run, 0);
-        }
-        while (diffTime >= delay) {
-            diffTime -= delay;
+        if (!diffFrame && diffTime >= delay * 2) {
+            diffTime = 0;
+            diffFrame = true;
             run();
+            diffFrame = false;
         }
 
+        if (!diffFrame) {
+            setTimeout(run, 0);
+        }
     }
     setTimeout(run, 0);
 }
@@ -231,6 +215,18 @@ function setType() {
             break;
         case "merge-bottom-up":
             solver = mergeBottomUpSolver;
+            break;
+        case "radix-lsd":
+            solver = radixLsd;
+            break;
+        case "bitonic":
+            solver = bitonic;
+            break;
+        case "counting":
+            solver = countingSolver;
+            break;
+        case "gravity":
+            solver = gravitySolver;
             break;
     }
     if (oldSolver !== solver) {
@@ -321,19 +317,19 @@ let mergeBottomUpSolver = function* () {
     }
 }
 
-function* mergeBottomUp(left, right, mid, rightEnd) {
-    if (left < right) {
-        yield* mergeBottomUp(left, mid, mid + 1, rightEnd);
-        yield* merge(left, mid, right);
-    }
-}
-
 function* mergeSort(low, high) {
     if (low < high) {
         let mid = Math.floor((low + high) / 2);
         yield* mergeSort(low, mid);
         yield* mergeSort(mid + 1, high);
         yield* merge(low, mid, high);
+    }
+}
+
+function* mergeBottomUp(left, right, mid, rightEnd) {
+    if (left < right) {
+        yield* mergeBottomUp(left, mid, mid + 1, rightEnd);
+        yield* merge(left, mid, right);
     }
 }
 
@@ -409,8 +405,191 @@ function* heapify(i, n) {
     }
 }
 
+// radix lsd
+let radixLsd = function* solveRadixLSD() {
+    let max = 0;
+    let base = 10;
+    for (let i = 0; i < elements.length; i++) {
+        let value = getElementValue(elements[i]);
+        if (value > max) {
+            max = value;
+        }
+    }
+
+    for (let place = 1; Math.floor(max / place) > 0; place *= base) {
+        yield* countingSort(place, base);
+    }
+}
+
+// counting sort
+let countingSolver = function* () {
+    yield* countingSort(null)
+}
+
+function* countingSort(place, base) {
+    let getPlaceIndex = function (index) {
+        if (place == null) {
+            return getElementValue(elements[index]);
+        }
+        return Math.floor((getElementValue(elements[index]) / place) % base);
+    }
+
+    let max = 0;
+    for (let i = 0; i < elements.length; i++) {
+        let value = getElementValue(elements[i]);
+        if (value > max) {
+            max = value;
+        }
+    }
+    let count = [];
+    for (let i = 0; i <= max; i++) {
+        count[i] = 0;
+    }
+    for (let i = 0; i < elements.length; i++) {
+        count[getPlaceIndex(i)]++;
+    }
+    for (let i = 1; i <= max; i++) {
+        count[i] += count[i - 1];
+    }
+    let sorted = [];
+    for (let i = elements.length - 1; i >= 0; i--) {
+        sorted[count[getPlaceIndex(i)] - 1] = elements[i];
+        count[getPlaceIndex(i)]--;
+
+        setCompareElement(elements[i]);
+        if (place == null && i % 4 == 0) {
+            yield;
+        }
+    }
+
+    clearCompares();
+    for (let i = 0; i < elements.length; i++) {
+        // This line isn't needed. It's just to make the graph smooth and not fragmented from unupdated parts.
+        elements[elements.indexOf(sorted[i])] = elements[i];
+
+        elements[i] = sorted[i];
+        updateElementsOrder();
+        setActiveElement(elements[i]);
+
+        // Skip a few sounds since this runs so fast it creates a lot of clipping. Only skip if delay is below a certain threshold.
+        if (delay < 5) {
+            if (i % 4 == 0) {
+                playSoundFrom(elements[i]);
+            }
+        } else if (delay < 10) {
+            if (i % 2 == 0) {
+                playSoundFrom(elements[i]);
+            }
+        } else {
+            playSoundFrom(elements[i]);
+        }
+        yield;
+    }
+}
+
+let bitonic = function* solveBitonic() {
+    yield* bitonicSort(0, elements.length, 1);
+}
+
+function* bitonicSort(left, length, direction) {
+    if (length <= 1) {
+        return;
+    }
+    let mid = Math.floor(length / 2);
+    yield* bitonicSort(left, mid, 1);
+    yield* bitonicSort(left + mid, mid, 0);
+    yield* bitonicMerge(left, length, direction);
+}
+
+function* bitonicMerge(start, length, direction) {
+    if (length <= 1) {
+        return;
+    }
+    let mid = Math.floor(length / 2);
+    for (let i = start; i < start + mid; i++) {
+        let shouldSortAsc = getElementValue(elements[i]) > getElementValue(elements[i + mid]) && direction === 1;
+        let shouldSortDesc = getElementValue(elements[i]) < getElementValue(elements[i + mid]) && direction == 0;
+        if (shouldSortAsc || shouldSortDesc) {
+            swap(i, i + mid);
+            setActiveElement(elements[i]);
+            setCompareElement(elements[i + mid]);
+            updateElementsOrder();
+            yield;
+        }
+    }
+
+    yield* bitonicMerge(start, mid, direction);
+    yield* bitonicMerge(start + mid, mid, direction);
+}
+
+// gravity sort
+let gravitySolver = function* () {
+    let max = 0;
+    for (let i = 0; i < elements.length; i++) {
+        let value = getElementValue(elements[i]);
+        if (value > max) {
+            max = value;
+        }
+    }
+
+    // let grid = Array.from(Array(elements.length), () => Array(max));
+    let grid = [];
+    for (let i = 0; i < elements.length; i++) {
+        grid[i] = [];
+    }
+    let levelCount = [];
+    for (let i = 0; i < max; i++) {
+        levelCount[i] = 0;
+        for (let j = 0; j < elements.length; j++) {
+            grid[j][i] = 0;
+        }
+    }
+
+    for (let i = 0; i < elements.length; i++) {
+        let k = getElementValue(elements[i]);
+        for (let j = 0; k > 0; j++) {
+            grid[levelCount[j]++][j] = 1;
+            k--;
+        }
+    }
+
+    let sorted = [];
+    let elementsCopy = elements.slice();
+    for (let i = 0; i < elements.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < max && grid[elements.length - 1 - i][j] == 1; j++) {
+            sum++;
+        }
+        // This is normal sorted[i] = sum. Since we're using DOM elements as storage we're just going to find it's index instead of the int value.
+        let elem;
+        for (let j = 0; j < elements.length; j++) {
+            if (getElementValue(elementsCopy[j]) == sum) {
+                elem = elements[j];
+                break;
+            }
+        }
+        sorted[i] = elem;
+
+
+        swap(elements.indexOf(elem), elements.indexOf(elementsCopy[i]));
+        // elements[elements.indexOf(elem)] = elements[i];
+        // elements[i] = elem;
+        updateElementsOrder()
+
+        if (i % 1 == 0) {
+            setActiveElement(elements[i]);
+            playSoundFrom(elements[i]);
+            yield;
+        }
+    }
+
+    for (let i = 0; i < elements.length; i++) {
+
+    }
+}
+
 let context = new AudioContext();
-let maxFreq = 600;
+let maxFreq = 550;
 let minFreq = 150;
 
 function playSoundFrom(element) {
@@ -427,11 +606,13 @@ function getElementValue(element) {
 function playSound(pitch) {
     var oscillator = new OscillatorNode(context);
     let gain = new GainNode(context);
-    gain.gain.value = .01;
+    gain.gain.value = .005;
     oscillator.type = "square";
     oscillator.frequency.value = maxFreq - (maxFreq - minFreq) * (1 - pitch);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start();
+
+    lastPlayed = performance.now();
     // Beep for 500 milliseconds
     setTimeout(function () {
         oscillator.stop();
@@ -481,6 +662,18 @@ function setCompareElement(element) {
     }
     element.classList.add("compare");
     lastCompared = element;
+}
+
+function clearCompares() {
+    if (lastCompared) {
+        lastCompared.classList.remove("compare");
+    }
+}
+
+function clearActives() {
+    if (lastSelected) {
+        lastSelected.classList.remove("active");
+    }
 }
 
 function swap(i, j) {
