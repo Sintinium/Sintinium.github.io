@@ -73,6 +73,10 @@ function createElementsArray() {
 }
 
 function play() {
+    if (isRandomizing) {
+        return;
+    }
+
     if (isPlaying) {
         reset();
         return;
@@ -182,8 +186,35 @@ function setCount() {
     document.getElementsByClassName("count-slider")[0].getElementsByTagName("p")[1].innerHTML = elementCount;
 }
 
+
+let isRandomizing = false;
+
 function resetAndRandomize() {
+    if (isRandomizing) {
+        return;
+    }
     reset();
+    let r = randomize();
+    let rand = function () {
+        if (isPlaying) {
+            isRandomizing = false;
+            clearActives();
+            return;
+        }
+        let next = r.next();
+        if (next.done) {
+            clearActives();
+            isRandomizing = false;
+            return;
+        }
+        let delay = 1;
+        if (elementCount <= 64) {
+            delay = 16;
+        }
+        setTimeout(rand, delay);
+    };
+    setTimeout(rand, 1);
+    isRandomizing = true;
     randomize();
     updateElementsOrder();
 }
@@ -206,6 +237,9 @@ function setType() {
             break;
         case "quick":
             solver = quick;
+            break;
+        case "quick-dual":
+            solver = dualQuick;
             break;
         case "merge":
             solver = mergeSolver;
@@ -264,6 +298,79 @@ function* partition(low, high) {
     elements[high] = temp;
     updateElementsOrder();
     return i + 1;
+}
+
+let dualQuick = function* () {
+    yield* dualQuickSort(0, elements.length - 1);
+}
+
+function* dualQuickSort(low, high) {
+    if (low < high) {
+        let pivot = yield* dualPartition(low, high);
+        yield* dualQuickSort(low, pivot[0] - 1);
+        yield* dualQuickSort(pivot[0] + 1, pivot[1] - 1);
+        yield* dualQuickSort(pivot[1] + 1, high);
+    }
+}
+
+function* dualPartition(left, right) {
+    if (getElementValue(elements[left]) > getElementValue(elements[right])) {
+        swap(left, right);
+        setActiveElement(elements[left]);
+        setCompareElement(elements[right]);
+        updateElementsOrder();
+        yield;
+    }
+
+    let j = left + 1;
+    let k = left + 1;
+    let g = right - 1;
+
+    let leftPivot = getElementValue(elements[left]);
+    let rightPivot = getElementValue(elements[right]);
+
+    while (k <= g) {
+        if (getElementValue(elements[k]) < leftPivot) {
+            swap(k, j);
+            j++;
+            setActiveElement(elements[k]);
+            setCompareElement(elements[j]);
+            updateElementsOrder();
+            yield;
+        } else if (getElementValue(elements[k]) >= rightPivot) {
+            while (getElementValue(elements[g]) > rightPivot && k < g) {
+                g--;
+            }
+            swap(k, g);
+            setActiveElement(elements[g]);
+            setCompareElement(elements[k]);
+            updateElementsOrder();
+            g--;
+
+            if (getElementValue(elements[k]) < leftPivot) {
+                setActiveElement(elements[k]);
+                setCompareElement(elements[j]);
+                quickSwap(k, j);
+                updateElementsOrder();
+                j++;
+            }
+
+            yield;
+        }
+        k++;
+    }
+    j--;
+    g++;
+
+    quickSwap(left, j);
+    setActiveElement(elements[j]);
+    setCompareElement(elements[left]);
+
+    quickSwap(right, g);
+    setActiveElement(elements[g]);
+    setCompareElement(elements[right]);
+
+    return [j, g];
 }
 
 let bubble = function* solveBubble() {
@@ -371,10 +478,24 @@ function* merge(low, mid, high) {
     }
 }
 
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function indexToHex(i) {
+    return rgbToHex(i, i, i);
+}
+
 let heap = function* solveHeap() {
     for (let i = Math.floor(elements.length / 2); i >= 0; i--) {
         yield* heapify(i, elements.length);
     }
+
     for (let i = elements.length - 1; i >= 0; i--) {
         swap(0, i);
         // setActiveElement(elements[0]);
@@ -456,8 +577,8 @@ function* countingSort(place, base) {
         sorted[count[getPlaceIndex(i)] - 1] = elements[i];
         count[getPlaceIndex(i)]--;
 
-        setCompareElement(elements[i]);
         if (place == null && i % 4 == 0) {
+            setCompareElement(elements[i]);
             yield;
         }
     }
@@ -619,12 +740,41 @@ function playSound(pitch) {
     }, 50);
 }
 
-function randomize() {
+function getRandomizeSkip() {
+    if (elementCount <= 256) {
+        return 1;
+    }
+    if (elementCount <= 512) {
+        return 4;
+    }
+    if (elementCount <= 1024) {
+        return 32;
+    }
+    return elementCount;
+}
+
+function* randomize() {
+    let randomized = elements.slice();
     for (let i = 0; i < elements.length; i++) {
         let j = Math.floor(Math.random() * elements.length);
-        let temp = elements[i];
-        elements[i] = elements[j];
-        elements[j] = temp;
+        let temp = randomized[i];
+        randomized[i] = randomized[j];
+        randomized[j] = temp;
+    }
+
+    if (getRandomizeSkip() == elementCount) {
+        elements = randomized;
+        updateElementsOrder();
+        return;
+    }
+    for (let i = 0; i < elements.length; i++) {
+        elements[i] = randomized[i];
+        updateElementsOrder();
+        if (i % getRandomizeSkip() == 0) {
+            playSoundFrom(elements[i]);
+            setActiveElement(elements[i]);
+            yield;
+        }
     }
 }
 
@@ -650,7 +800,15 @@ function setActiveElement(element) {
     if (!element) return;
 
     if (lastSelected) {
-        lastSelected.classList.remove("active");
+        let last = lastSelected;
+        let delay = 10;
+        if (elementCount < 256) {
+            last.classList.remove("active");
+        } else {
+            setTimeout(() => {
+                last.classList.remove("active");
+            }, delay);
+        }
     }
     element.classList.add("active");
     lastSelected = element;
@@ -658,10 +816,22 @@ function setActiveElement(element) {
 
 function setCompareElement(element) {
     if (lastCompared) {
-        lastCompared.classList.remove("compare");
+        let last = lastCompared;
+        let delay = 10;
+        if (elementCount < 256) {
+            last.classList.remove("compare");
+        } else {
+            setTimeout(() => {
+                last.classList.remove("compare");
+            }, delay);
+        }
     }
     element.classList.add("compare");
     lastCompared = element;
+}
+
+function setHeapElement(element, index) {
+    element.classList.add("heap" + index);
 }
 
 function clearCompares() {
@@ -681,6 +851,12 @@ function swap(i, j) {
     elements[i] = elements[j];
     elements[j] = temp;
     playSound(elements[i].getAttribute("value") / elements.length);
+}
+
+function quickSwap(i, j) {
+    let temp = elements[i];
+    elements[i] = elements[j];
+    elements[j] = temp;
 }
 
 class Element {
