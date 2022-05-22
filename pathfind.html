@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Canvas</title>
   <link rel="stylesheet" href="pathfind.css">
+  <script type="text/javascript" src="maze.js"></script>
   <script type="text/javascript" src="pathfind.js"></script>
 </head>
 
@@ -16,8 +17,9 @@
         <button id="clear" onclick="clearGrid();">Clear</button>
         <button id="create-maze" onclick="createMaze();">Create Maze</button>
     
-        <select id="type" onchange="setAlgo();">
-            <option value="bubble">A*</option>
+        <select id="algo" onchange="setAlgo();">
+            <option value="astar">A*</option>
+            <option value="dijkstra">Dijkstra</option>
         </select>
         </div>
         

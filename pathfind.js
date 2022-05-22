@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", onDomReady);
 
-let gridWidth = 32;
+let pixelsPerTile = 32;
+let gridWidth = 64;
 let gridHeight;
 let tileSize = 32;
 let spacing = 4;
@@ -19,11 +20,18 @@ let isMouseDown = false;
 let dragType = EMPTY;
 
 let grabbed = null;
+let grabbedStartPrevious = EMPTY;
+let grabbedEndPrevious = EMPTY;
+
+let solver = null;
 
 document.addEventListener("mousedown", event => {
+    let target = event.target;
+    if (!target.classList.contains("cell")) {
+        return;
+    }
     grabbed = null;
     isMouseDown = true;
-    let target = event.target;
     let x = parseInt(target.id.split("-")[0]);
     let y = parseInt(target.id.split("-")[1]);
     let cell = grid[x][y];
@@ -39,16 +47,23 @@ document.addEventListener("mousedown", event => {
     handleMouse(target);
 });
 
-document.addEventListener("mouseup", () => {
+window.addEventListener("resize", () => {
+    // onDomReady();
+});
+
+document.addEventListener("mouseup", event => {
     grabbed = null;
     isMouseDown = false;
 });
 
 document.addEventListener("mouseover", event => {
+    let target = event.target;
+    if (!target.classList.contains("cell")) {
+        return;
+    }
     if (!isMouseDown) {
         return;
     }
-    let target = event.target;
     handleMouse(target);
 });
 
@@ -58,33 +73,50 @@ function handleMouse(target) {
         let x = parseInt(target.id.split("-")[0]);
         let y = parseInt(target.id.split("-")[1]);
         let cell = grid[x][y];
+        if (cell.cellType == START || cell.cellType == END) {
+            return;
+        }
         if (grabbed == null) {
             cell.setType(dragType);
             return;
         }
 
+        let prev = cell.cellType;
         if (grabbed.cellType === START) {
-            startCell.setType(EMPTY);
+            startCell.setType(grabbedStartPrevious);
             startCell = cell;
             startCell.setType(START);
             grabbed = startCell;
+            grabbedStartPrevious = prev;
         }
         if (grabbed.cellType === END) {
-            endCell.setType(EMPTY);
+            endCell.setType(grabbedEndPrevious);
             endCell = cell;
             endCell.setType(END);
             grabbed = endCell;
+            grabbedEndPrevious = prev;
         }
     }
 }
 
 function onDomReady() {
     let container = document.getElementsByClassName("container")[0];
+    const toRemove = document.getElementsByClassName("cell");
+    while (toRemove.length > 0) {
+        toRemove[0].parentNode.removeChild(toRemove[0]);
+    }
     let containerWidth = container.clientWidth;
     let containerHeight = container.clientHeight;
 
+    gridWidth = Math.floor(containerWidth / pixelsPerTile);
+    if (gridWidth % 2 === 0) {
+        gridWidth--;
+    }
     let tileSize = containerWidth / (gridWidth) - spacing;
-    gridHeight = Math.floor(containerHeight / tileSize) - 1 - Math.floor(containerHeight / (containerHeight - 60));
+    gridHeight = Math.floor(containerHeight / (tileSize + spacing)) - Math.floor(60 / tileSize);
+    if (gridHeight % 2 === 0) {
+        gridHeight--;
+    }
 
     grid = Array.from(Array(gridWidth), () => new Array(gridHeight));
 
@@ -110,6 +142,8 @@ function onDomReady() {
     endCell = grid[Math.floor(gridWidth * .75)][Math.floor(gridHeight * .50 - 1)];
     startCell.setType(START);
     endCell.setType(END);
+
+    setAlgo();
 }
 
 function play() {
@@ -118,16 +152,16 @@ function play() {
             grid[i][j].updateBackground();
         }
     }
-    let solver = solveAStar();
+    let iter = solver();
     let player = function () {
-        let next = solver.next();
+        let next = iter.next();
         if (next.done) {
             return;
         }
 
-        setTimeout(player, 1);
+        setTimeout(player, 10);
     }
-    setTimeout(player, 1);
+    setTimeout(player, 10);
 }
 
 function clearGrid() {
@@ -146,27 +180,52 @@ function clearPath() {
         for (let y = 0; y < gridHeight; y++) {
             grid[x][y].div.classList.remove("path");
             grid[x][y].div.classList.remove("visited");
+            grid[x][y].div.classList.remove("open");
         }
     }
 }
 
-function setAlgo() {
+function createMaze() {
+    // clearPath();
+    // clearGrid();
 
+    let iter = generateMaze(this, grid, gridWidth, gridHeight);
+    let player = function() {
+        let next = iter.next();
+        if (next.done) {
+            return;
+        }
+
+        setTimeout(player, 10);
+    }
+    setTimeout(player, 10);
 }
 
-let solveAStar = function* () {
-    let path = yield* findPath(startCell, endCell);
+function setAlgo() {
+    let algo = document.getElementById("algo").value;
+    clearPath();
+    switch (algo) {
+        case "dijkstra":
+            solver = solveDijkstra;
+            break;
+        case "astar":
+            solver = solveAStar;
+            break;
+    }
+}
+
+let solveDijkstra = function* () {
+    let path = yield* dijkstra();
 
     clearPath();
 
     for (let i = 0; i < path.length; i++) {
-        console.log(path[i]);
         path[i].updateBackground()
         path[i].div.classList.add("path");
     }
 }
 
-function* findPath() {
+function* dijkstra() {
     let queue = [];
     let prev = new Map();
     let dist = new Map();
@@ -188,6 +247,7 @@ function* findPath() {
         for (let i = 0; i < n.length; i++) {
             if (!visited.includes(n[i])) {
                 neighbors.push(n[i]);
+                n[i].div.classList.add("open");
             }
         }
 
@@ -196,9 +256,10 @@ function* findPath() {
             visited.push(cell);
             queue.push(cell);
             yield cell.div.classList.add("visited");
-
+            
             let altDist = dist.get(current) + 1;
             if (altDist < dist.get(cell)) {
+                cell.div.classList.remove("open");
                 dist.set(cell, altDist);
                 prev.set(cell, current);
                 if (cell.cellType === END) {
@@ -209,7 +270,7 @@ function* findPath() {
         }
     }
 
-    let shortestPath = cameFrom(prev, endCell);
+    let shortestPath = dijkstraCameFrom(prev, endCell);
 
     let result = [];
     for (let i = 0; i < shortestPath.length; i++) {
@@ -221,14 +282,104 @@ function* findPath() {
     return result;
 }
 
-function cameFrom(prev, end) {
-    console.log(prev)
+function dijkstraCameFrom(prev, end) {
     let shortestPath = [];
     while (end !== undefined) {
         shortestPath.push(end);
         end = prev.get(end);
     }
     return shortestPath;
+}
+
+let solveAStar = function* () {
+    let path = yield* aStar();
+
+    clearPath();
+
+    for (let i = 0; i < path.length; i++) {
+        path[i].updateBackground()
+        path[i].div.classList.add("path");
+    }
+}
+
+function* aStar() {
+    let gMap = new Map();
+    let fMap = new Map();
+    let parents = new Map();
+
+    for (let i = 0; i < gridWidth; i++) {
+        for (let j = 0; j < gridHeight; j++) {
+            gMap.set(grid[i][j], Infinity);
+            fMap.set(grid[i][j], Infinity);
+        }
+    }
+
+    gMap.set(startCell, 0);
+    fMap.set(startCell, heuristic(startCell, endCell));
+
+    let findBest = function (nodes) {
+        let best = null;
+        for (let i = 0; i < nodes.length; i++) {
+            if (best == null) {
+                best = nodes[i];
+            } else if (fMap.get(nodes[i]) < fMap.get(best)) {
+                best = nodes[i];
+            }
+        }
+        return best;
+    }
+
+
+    let openList = [];
+    openList.push(startCell);
+
+    let current;
+
+    while (openList.length > 0) {
+        current = findBest(openList);
+        
+        if (current.cellType === END) {
+            return aStarReconstruct(parents, current);
+        }
+        
+        openList.splice(openList.indexOf(current), 1);
+        current.div.classList.remove("open");
+        yield current.div.classList.add("visited");
+
+        let neighbors = current.getNeighbors();
+        for (let i = 0; i < neighbors.length; i++) {
+            let neighbor = neighbors[i];
+
+            let tentativeG = gMap.get(current) + heuristic(current, neighbor);
+            if (tentativeG < gMap.get(neighbor)) {
+                parents.set(neighbor, current);
+                gMap.set(neighbor, tentativeG);
+                fMap.set(neighbor, tentativeG + heuristic(neighbor, endCell));
+                if (!openList.includes(neighbor)) {
+                    openList.push(neighbor);
+                    neighbor.div.classList.add("open");
+                }
+            }
+        }
+    }
+
+    return null;
+}
+
+function aStarReconstruct(parents, current) {
+    let path = [];
+    path.push(current);
+    while (parents.has(current)) {
+        current = parents.get(current);
+        path.unshift(current);
+    }
+    return path;
+}
+
+function heuristic(a, b) {
+    let d = Math.hypot(a.x - b.x, a.y - b.y);
+    // let d = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    return d;
 }
 
 class Cell {
@@ -265,18 +416,56 @@ class Cell {
     }
 
     getNeighbors() {
+        const c = this;
+        let isValidDiagonal = function (dx, dy) {
+            return grid[dx][c.y].cellType !== WALL && grid[c.x][dy].cellType !== WALL;
+        }
         let neighbors = [];
-        if (this.x > 0) {
+
+        let minX = 0;
+        let maxX = gridWidth - 1;
+        let minY = 0;
+        let maxY = gridHeight - 1;
+        if (this.x > minX) {
             neighbors.push(grid[this.x - 1][this.y]);
         }
-        if (this.x < gridWidth - 1) {
+        if (this.x < maxX) {
             neighbors.push(grid[this.x + 1][this.y]);
         }
-        if (this.y > 0) {
+        if (this.y > minY) {
             neighbors.push(grid[this.x][this.y - 1]);
         }
-        if (this.y < gridHeight - 1) {
+        if (this.y < maxY) {
             neighbors.push(grid[this.x][this.y + 1]);
+        }
+
+        if (this.x > minX && this.y > minY) {
+            let dx = this.x - 1;
+            let dy = this.y - 1;
+            if (isValidDiagonal(dx, dy)) {
+                neighbors.push(grid[dx][dy]); // top left
+            }
+        }
+        if (this.x < maxX && this.y > minY) {
+            let dx = this.x + 1;
+            let dy = this.y - 1;
+            if (isValidDiagonal(dx, dy)) {
+                neighbors.push(grid[dx][dy]); // top right
+            }
+        }
+        if (this.x > minX && this.y < maxY) {
+            let dx = this.x - 1;
+            let dy = this.y + 1;
+            if (isValidDiagonal(dx, dy)) {
+                neighbors.push(grid[dx][dy]); // bottom left
+            }
+        }
+        if (this.x < maxX && this.y < maxY) {
+            let dx = this.x + 1;
+            let dy = this.y + 1;
+            if (isValidDiagonal(dx, dy)) {
+                neighbors.push(grid[dx][dy]); // bottom right
+            }
         }
 
         let result = [];

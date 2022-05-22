@@ -51,19 +51,23 @@ html, body {
 }
 
 .path {
-    background: green !important;
+    background: green;
 }
 
 .visited {
-    background: #575757 !important;
+    background: #575757;
+}
+
+.open {
+    background: #467942;
 }
 
 .start {
-    background: #00ff00 !important;
+    background: #00ff00;
 }
 
 .end {
-    background: #ff0000 !important;
+    background: #ff0000;
 }
 
 .slider {
