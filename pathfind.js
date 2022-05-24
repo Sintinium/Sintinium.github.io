@@ -44,6 +44,7 @@ document.addEventListener("pointerdown", event => {
         dragType = EMPTY;
     }
 
+    target.releasePointerCapture(event.pointerId);
     handleMouse(target);
 });
 
@@ -56,7 +57,7 @@ document.addEventListener("pointerup", event => {
     isMouseDown = false;
 });
 
-document.addEventListener("pointerover", event => {
+document.addEventListener("pointermove", event => {
     let target = event.target;
     if (!target.classList.contains("cell")) {
         return;
@@ -64,6 +65,7 @@ document.addEventListener("pointerover", event => {
     if (!isMouseDown) {
         return;
     }
+    target.releasePointerCapture(event.pointerId);
     handleMouse(target);
 });
 

@@ -20,6 +20,7 @@ html, body {
     top: 2%;
     right: 2%;
     bottom: 2%;
+    touch-action: none;
     /* display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -39,6 +40,7 @@ html, body {
 }
 
 .cell {
+    touch-action: none;
     background: #292929;
     /* display: block; */
     position: absolute;
