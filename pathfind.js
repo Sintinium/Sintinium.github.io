@@ -25,7 +25,7 @@ let grabbedEndPrevious = EMPTY;
 
 let solver = null;
 
-document.addEventListener("mousedown", event => {
+document.addEventListener("pointerdown", event => {
     let target = event.target;
     if (!target.classList.contains("cell")) {
         return;
@@ -51,12 +51,12 @@ window.addEventListener("resize", () => {
     // onDomReady();
 });
 
-document.addEventListener("mouseup", event => {
+document.addEventListener("pointerup", event => {
     grabbed = null;
     isMouseDown = false;
 });
 
-document.addEventListener("mouseover", event => {
+document.addEventListener("pointerover", event => {
     let target = event.target;
     if (!target.classList.contains("cell")) {
         return;
