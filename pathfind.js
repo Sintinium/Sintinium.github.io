@@ -331,6 +331,7 @@ function* aStar() {
 
 
     let openList = [];
+    let closedList = [];
     openList.push(startCell);
 
     let current;
@@ -343,6 +344,7 @@ function* aStar() {
         }
         
         openList.splice(openList.indexOf(current), 1);
+        closedList.push(current);
         current.div.classList.remove("open");
         yield current.div.classList.add("visited");
 
@@ -350,16 +352,23 @@ function* aStar() {
         for (let i = 0; i < neighbors.length; i++) {
             let neighbor = neighbors[i];
 
-            let tentativeG = gMap.get(current) + heuristic(current, neighbor);
-            if (tentativeG < gMap.get(neighbor)) {
-                parents.set(neighbor, current);
-                gMap.set(neighbor, tentativeG);
-                fMap.set(neighbor, tentativeG + heuristic(neighbor, endCell));
-                if (!openList.includes(neighbor)) {
-                    openList.push(neighbor);
-                    neighbor.div.classList.add("open");
-                }
+            if (closedList.includes(neighbor)) {
+                continue;
             }
+
+            let tentativeG = gMap.get(current) + heuristic(current, neighbor);
+            if (openList.includes(neighbor)) {
+                if (tentativeG < gMap.get(neighbor)) {
+                    gMap.set(neighbor, tentativeG);
+                    parents.set(neighbor, current);
+                }
+            } else {
+                gMap.set(neighbor, tentativeG);
+                openList.push(neighbor);
+                parents.set(neighbor, current);
+            }
+            fMap.set(neighbor, tentativeG + heuristic(neighbor, endCell));
+            neighbor.div.classList.add("open");
         }
     }
 
@@ -377,8 +386,8 @@ function aStarReconstruct(parents, current) {
 }
 
 function heuristic(a, b) {
-    let d = Math.hypot(a.x - b.x, a.y - b.y);
-    // let d = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    // let d = Math.hypot(a.x - b.x, a.y - b.y);
+    let d = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     return d;
 }
 
