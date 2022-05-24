@@ -242,6 +242,7 @@ function* dijkstra() {
 
     while (queue.length > 0) {
         let current = queue.shift();
+        current.div.classList.remove("open");
         let n = current.getNeighbors();
         let neighbors = [];
         for (let i = 0; i < n.length; i++) {
@@ -259,7 +260,6 @@ function* dijkstra() {
             
             let altDist = dist.get(current) + 1;
             if (altDist < dist.get(cell)) {
-                cell.div.classList.remove("open");
                 dist.set(cell, altDist);
                 prev.set(cell, current);
                 if (cell.cellType === END) {
@@ -386,9 +386,11 @@ function aStarReconstruct(parents, current) {
 }
 
 function heuristic(a, b) {
-    // let d = Math.hypot(a.x - b.x, a.y - b.y);
-    let d = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-    return d;
+    let euclidean = Math.hypot(a.x - b.x, a.y - b.y);
+    let manhattan = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+
+    // return (euclidean + manhattan) / 2;
+    return manhattan;
 }
 
 class Cell {
