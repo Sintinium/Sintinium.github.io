@@ -1,0 +1,29 @@
+name,price,category
+Dynamite Stick,18,explosive
+Fire Bomb,30,explosive
+Flash Bomb,25,explosive
+Frag Bomb,103,explosive
+Hellfire Bomb,70,explosive
+Hive Bomb,40,explosive
+Liquid Fire Bomb,35,explosive
+Sticky Bomb,64,explosive
+Concertina Bomb,48,explosive
+Dynamite Bundle,75,explosive
+Big Dynamite Bundle,110,explosive
+Chaos Bomb,15,explosive
+Waxed Dynamite Stick,24,explosive
+Posion Bomb,25,explosive
+Medical Pack,35,aid
+Regeneration Shot,105,aid
+Regeneration Shot (Weak),40,aid
+Vitality Shot,85,aid
+Vitality Shot (Weak),20,aid
+Stamina Shot,100,stamina
+Stamina Shot (Weak),60,stamina
+Antidote Shot,55,antidote
+Antidote Shot (Weak),30,antidote
+Choke Beetle,22,beetle
+Fire Beetle,57,beetle
+Stalker Beetle,45,beetle
+Tool Box,70,stock
+Ammo Box,65,stock

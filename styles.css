@@ -1,0 +1,71 @@
+body {
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings: "wdth" 150;
+  text-align: center;
+  background-color: rgb(33, 33, 39);
+  color: white;
+}
+
+.radio-selectors {
+  display: inline-flex;
+  flex-direction: column;
+  row-gap: .2em;
+  size: auto;
+}
+
+.radio-select {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  justify-self: left;
+  gap: .2em;
+}
+
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  padding-right: 1em;
+}
+
+.radio-select > label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(68, 68, 68);
+  border: solid 2px black;
+  padding: 0px .4em;
+  width: auto;
+  height: 50px;
+}
+
+.radio-select > input[type="radio"] {
+  display: none;
+}
+
+.radio-select > input[type="radio"]:checked + label {
+  background: rgb(139, 139, 139);
+  box-shadow: inset 0px 0px 0px 2px rgb(255, 255, 255);
+}
+
+#roll-button {
+  /* height: 2em; */
+  font-size: 2em;
+}
+
+.results {
+  display: inline-block;
+}
+
+.results > div > h3 {
+  text-align: center;
+  margin: 0;
+}
+
+.results > div > div {
+  text-align: center;
+}

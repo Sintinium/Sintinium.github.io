@@ -2,45 +2,60 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="text/javascript" src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="picker.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
-  <div class="container"></div>
-  <div class="controls">
-    <button id="play" onclick="play();">Play</button>
-    <button id="randomize" onclick="resetAndRandomize();">Randomize</button>
+    <div class="radio-selectors">
+        <div class="radio-label">Preset: </div>
+        <div class="radio-select">
+            <input type="radio" id="small" name="preset" checked><label for="small">Small Loadout</label>
+            <!-- <input type="radio" id="medium" name="preset"><label for="medium">Medium Loadout</label> -->
+            <input type="radio" id="full" name="preset" disabled="true"><label for="full">Full Loadout</label>
+            <!-- <input type="radio" id="random" name="preset"><label for="random">Random</label> -->
+        </div>
+        <button id="roll-button">Roll</button>
+    </div>
 
-    <select id="type" onchange="setType();">
-      <option value="bubble">Bubble Sort</option>
-      <option value="quick">Quick Sort</option>
-      <option value="quick-dual">Quick Sort (Dual Pivot)</option>
-      <option value="insertion">Insertion Sort</option>
-      <option value="merge">Merge Sort (Top Down)</option>
-      <option value="merge-bottom-up">Merge Sort (Bottom Up)</option>
-      <option value="heap">Heap Sort</option>
-      <option value="radix-lsd">Radix Sort (LSD)</option>
-      <option value="bitonic">Bitonic Sort</option>
-      <option value="counting">Counting Sort</option>
-      <!-- <option value="gravity">Gravity Sort</option> -->
-    </select>
-  </div>
-  <div class="slider">
-    <p>Delay:</p>
-    <input type="range" min="6" max="100" value="10.0" id="speed" step=".1" oninput="setSpeed();">
-    <p>10ms</p>
-  </div>
+    <br>
+    <br>
 
-  <div class="count-slider">
-    <p>Amount:</p>
-    <input type="range" min="0" max="6" value="2" id="count" step="1" oninput="setCount();">
-    <p>100</p>
-  </div>
-  <div id="stats">delay</div>
+    <div class="results">
+        <div>
+            <h3>Weapon 1: </h3>
+            <div id="weapon1"></div>
+        </div>
+        <br/>
+        <div><h3>Weapon 2: </h3><div id="weapon2"></div></div>
+        <br/>
+        <div><h3>Tools: </h3><div id="tools"></div></div>
+        <br/>
+        <div><h3>Consumables: </h3><div id="consumables"></div></div>
+    </div>
+
+    <div class="radio-selectors" style="display: none;">
+        <div class="radio-label">Tool Count: &nbsp</div>
+        <div class="radio-select">
+            <input type="radio" id="tc1" name="tool-count"><label for="tc1">1</label>
+            <input type="radio" id="tc2" name="tool-count" checked><label for="tc2">2</label>
+            <input type="radio" id="tc3" name="tool-count"><label for="tc3">3</label>
+            <input type="radio" id="tc4" name="tool-count"><label for="tc4">4</label>
+        </div>
+
+        <div class="radio-label">Consumable Count: &nbsp</div>
+        <div class="radio-select">
+            <input type="radio" id="cc1" name="consumable-count" checked><label for="cc1">1</label>
+            <input type="radio" id="cc2" name="consumable-count"><label for="cc2">2</label>
+            <input type="radio" id="cc3" name="consumable-count"><label for="cc3">3</label>
+            <input type="radio" id="cc4" name="consumable-count"><label for="cc4">4</label>
+        </div>
+    </div>
 </body>
 
 </html>

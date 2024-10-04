@@ -1,0 +1,404 @@
+[
+    {
+        "name": "Infantry",
+        "price": 78,
+        "slots": 3,
+        "variants": "Sniper,Bayonet",
+        "ammos": "FMJ,HVA,IA,PA"
+    },
+    {
+        "name": "1865 Carbine",
+        "price": 70,
+        "slots": 3,
+        "variants": "",
+        "ammos": "FMJ"
+    },
+    {
+        "name": "Crossbow",
+        "price": 53,
+        "slots": 3,
+        "variants": "Deadeye",
+        "ammos": "Steel,Explosive,Shot",
+        "ammos2": "Steel,Explosive,Shot"
+    },
+    {
+        "name": "Rival",
+        "price": 160,
+        "slots": 3,
+        "variants": "Trauma",
+        "ammos": "DB,F,PSA,S"
+    },
+    {
+        "name": "Rival Shorty",
+        "price": 125,
+        "slots": 2,
+        "variants": "",
+        "ammos": "DB,F,PSA,S"
+    },
+    {
+        "name": "Lebel",
+        "price": 397,
+        "slots": 3,
+        "variants": "Aperture,Marksman,Talon",
+        "ammos": "IA,SA"
+    },
+    {
+        "name": "Auto-5",
+        "price": 600,
+        "slots": 3,
+        "variants": "",
+        "ammos": "F,PSA,S"
+    },
+    {
+        "name": "Hand Crossbow",
+        "price": 30,
+        "slots": 1,
+        "variants": "",
+        "ammos": "Chaos,Choke,Dragon,Poison",
+        "ammos2": "Chaos,Choke,Dragon,Poison"
+    },
+    {
+        "name": "Centennial",
+        "price": 157,
+        "slots": 3,
+        "variants": "Sniper,Trauma",
+        "ammos": "DA,FMJ,HVA,PA"
+    },
+    {
+        "name": "Centennial Shorty",
+        "price": 103,
+        "slots": 2,
+        "variants": "Silencer",
+        "ammos": "DA,FMJ,HVA,PA"
+    },
+    {
+        "name": "Melee",
+        "price": 80,
+        "slots": 1,
+        "variants": "Baseball Bat,Cavalry Saber,Combat Axe,Katana,Machete,Railroad Hammer",
+        "ammos": "",
+        "melee": true
+    },
+    {
+        "name": "Berthier",
+        "price": 300,
+        "slots": 3,
+        "variants": "Deadeye,Marksman,Riposte",
+        "ammos": "IA,SA"
+    },
+    {
+        "name": "Bomb Lance",
+        "price": 199,
+        "slots": 3,
+        "variants": "",
+        "ammos": "Dragon Breath,Steel Ball,Waxed Frag",
+        "ammos2": "Dragon Breath,Steel Ball,Waxed Frag"
+    },
+    {
+        "name": "Bornheim",
+        "price": 146,
+        "slots": 1,
+        "variants": "Extended,Silencer",
+        "ammos": "HVA,IA"
+    },
+    {
+        "name": "Bornheim Match",
+        "price": 180,
+        "slots": 2,
+        "variants": "",
+        "ammos": "HVA,IA"
+    },
+    {
+        "name": "Conversion",
+        "price": 55,
+        "slots": 1,
+        "variants": "Chain",
+        "ammos": "DA,FMJ"
+    },
+    {
+        "name": "Dolch (any variant)",
+        "price": 690,
+        "slots": 1,
+        "variants": "",
+        "ammos": "DA,FMJ"
+    },
+    {
+        "name": "Drilling",
+        "price": 510,
+        "slots": 3,
+        "variants": "",
+        "ammos": "HVA,DA,FMJ",
+        "ammos2": "F,S,PSA"
+    },
+    {
+        "name": "Drilling Shorty",
+        "price": 330,
+        "slots": 2,
+        "variants": "Hatchet",
+        "ammos": "HVA,DA,FMJ",
+        "ammos2": "F,S,PSA"
+    },
+    {
+        "name": "Frontier",
+        "price": 41,
+        "slots": 3,
+        "variants": "Marksman,Silencer",
+        "ammos": "FMJ,HVA,IA,PA"
+    },
+    {
+        "name": "Haymaker",
+        "price": 370,
+        "slots": 2,
+        "variants": "",
+        "ammos": "FMJ,PA",
+        "ammos2": "DB,S"
+    },
+    {
+        "name": "Bow",
+        "price": 57,
+        "slots": 2,
+        "variants": "",
+        "ammos": "Concertina,Frag,Poison",
+        "ammos2": "Concertina,Frag,Poison"
+    },
+    {
+        "name": "Krag",
+        "price": 345,
+        "slots": 3,
+        "variants": "Bayonet,Sniper",
+        "ammos": "FMJ,IA"
+    },
+    {
+        "name": "LeMat",
+        "price": 83,
+        "slots": 1,
+        "variants": "",
+        "ammos": "FMJ,IA",
+        "ammos2": "DB,S"
+    },
+    {
+        "name": "LeMat Carbine",
+        "price": 115,
+        "slots": 3,
+        "variants": "Marksman",
+        "ammos": "FMJ,IA",
+        "ammos2": "DB,S"
+    },
+    {
+        "name": "Mako",
+        "price": 360,
+        "slots": 3,
+        "variants": "Aperture,Claw",
+        "ammos": "EA,FMJ"
+    },
+    {
+        "name": "Marathon",
+        "price": 68,
+        "slots": 3,
+        "variants": "Swift",
+        "ammos": "HVA,IA,FMJ,PA"
+    },
+    {
+        "name": "Martini-Henry",
+        "price": 122,
+        "slots": 3,
+        "variants": "Deadeye,Ironside,Marksman,Riposte",
+        "ammos": "HVA,EA,FMJ,IA",
+        "ammos2": "HVA,EA,FMJ,IA"
+    },
+    {
+        "name": "Mosin Obrez",
+        "price": 290,
+        "slots": 2,
+        "variants": "Extended,Mace",
+        "ammos": "IA,SA"
+    },
+    {
+        "name": "Mosin-Nagant",
+        "price": 620,
+        "slots": 3,
+        "variants": "Avtomat,Bayonet,Sniper",
+        "ammos": "IA,SA"
+    },
+    {
+        "name": "Nagant",
+        "price": 24,
+        "slots": 1,
+        "variants": "Silencer",
+        "ammos": "DA,HVA,PA"
+    },
+    {
+        "name": "Nagant Precision",
+        "price": 29,
+        "slots": 2,
+        "variants": "Deadeye",
+        "ammos": "DA,HVA,PA"
+    },
+    {
+        "name": "New Army",
+        "price": 90,
+        "slots": 1,
+        "variants": "Swift",
+        "ammos": "DA,FMJ"
+    },
+    {
+        "name": "Nitro Express",
+        "price": 1015,
+        "slots": 3,
+        "variants": "",
+        "ammos": "EA,Shredder"
+    },
+    {
+        "name": "Officer",
+        "price": 96,
+        "slots": 1,
+        "variants": "Brawler",
+        "ammos": "DA,HVA,PA"
+    },
+    {
+        "name": "Officer Carbine",
+        "price": 183,
+        "slots": 3,
+        "variants": "Deadeye",
+        "ammos": "DA,HVA,PA"
+    },
+    {
+        "name": "Pax",
+        "price": 80,
+        "slots": 1,
+        "variants": "Claw,Trueshot",
+        "ammos": "DA,FMJ,HVA,IA,PA"
+    },
+    {
+        "name": "Ranger",
+        "price": 75,
+        "slots": 3,
+        "variants": "Aperture,Swift,Talon",
+        "ammos": "FMJ,HVA,IA,PA"
+    },
+    {
+        "name": "Romero",
+        "price": 66,
+        "slots": 3,
+        "variants": "Alamo,Talon",
+        "ammos": "DB,PSA,S",
+        "ammos2": "DB,PSA,S"
+    },
+    {
+        "name": "Romero Shorty",
+        "price": 56,
+        "slots": 2,
+        "variants": "Hatchet",
+        "ammos": "DB,PSA,S",
+        "ammos2": "DB,PSA,S"
+    },
+    {
+        "name": "Scottfield",
+        "price": 77,
+        "slots": 1,
+        "variants": "Brawler,Spitfire,Swift",
+        "ammos": "DA,FMJ,HVA,IA"
+    },
+    {
+        "name": "Scottfield Precision",
+        "price": 85,
+        "slots": 2,
+        "variants": "",
+        "ammos": "DA,FMJ,HVA,IA"
+    },
+    {
+        "name": "Slate",
+        "price": 333,
+        "slots": 3,
+        "variants": "Riposte",
+        "ammos": "PSA,S"
+    },
+    {
+        "name": "Sparks",
+        "price": 130,
+        "slots": 3,
+        "variants": "Silencer,Sniper",
+        "ammos": "FMJ,IA,PA",
+        "ammos2": "FMJ,IA,PA"
+    },
+    {
+        "name": "Sparks Pistol",
+        "price": 155,
+        "slots": 1,
+        "variants": "",
+        "ammos": "FMJ,IA,PA",
+        "ammos2": "FMJ,IA,PA"
+    },
+    {
+        "name": "Specter",
+        "price": 188,
+        "slots": 3,
+        "variants": "Bayonet",
+        "ammos": "DA,F,PSA,S"
+    },
+    {
+        "name": "Specter Shorty",
+        "price": 164,
+        "slots": 2,
+        "variants": "",
+        "ammos": "DA,F,PSA,S"
+    },
+    {
+        "name": "Springfield",
+        "price": 38,
+        "slots": 3,
+        "variants": "Bayonet,Marksman",
+        "ammos": "DA,EA,HVA,PA",
+        "ammos2": "DA,EA,HVA,PA"
+    },
+    {
+        "name": "Springfield Shorty",
+        "price": 33,
+        "slots": 2,
+        "variants": "Bullseye,Striker",
+        "ammos": "DA,EA,HVA,PA",
+        "ammos2": "DA,EA,HVA,PA"
+    },
+    {
+        "name": "Terminus",
+        "price": 238,
+        "slots": 3,
+        "variants": "",
+        "ammos": "DB,F,PSA,S"
+    },
+    {
+        "name": "Terminus Shorty",
+        "price": 218,
+        "slots": 2,
+        "variants": "",
+        "ammos": "DB,F,PSA,S"
+    },
+    {
+        "name": "Uppercut",
+        "price": 414,
+        "slots": 1,
+        "variants": "",
+        "ammos": "EA,FMJ,IA"
+    },
+    {
+        "name": "Uppercut Precision",
+        "price": 425,
+        "slots": 2,
+        "variants": "Deadeye",
+        "ammos": "EA,FMJ,IA"
+    },
+    {
+        "name": "Vandal",
+        "price": 35,
+        "slots": 2,
+        "variants": "Bullseye,Striker",
+        "ammos": "FMJ,HVA,IA,PA"
+    },
+    {
+        "name": "Vetterli",
+        "price": 105,
+        "slots": 3,
+        "variants": "Bayonet,Cyclone,Deadeye,Marksman,Silencer",
+        "ammos": "FMJ,HVA,IA"
+    }
+]

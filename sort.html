@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="text/javascript" src="script.js"></script>
+</head>
+
+<body>
+  <div class="container"></div>
+  <div class="controls">
+    <button id="play" onclick="play();">Play</button>
+    <button id="randomize" onclick="resetAndRandomize();">Randomize</button>
+
+    <select id="type" onchange="setType();">
+      <option value="bubble">Bubble Sort</option>
+      <option value="quick">Quick Sort</option>
+      <option value="quick-dual">Quick Sort (Dual Pivot)</option>
+      <option value="insertion">Insertion Sort</option>
+      <option value="merge">Merge Sort (Top Down)</option>
+      <option value="merge-bottom-up">Merge Sort (Bottom Up)</option>
+      <option value="heap">Heap Sort</option>
+      <option value="radix-lsd">Radix Sort (LSD)</option>
+      <option value="bitonic">Bitonic Sort</option>
+      <option value="counting">Counting Sort</option>
+      <!-- <option value="gravity">Gravity Sort</option> -->
+    </select>
+  </div>
+  <div class="slider">
+    <p>Delay:</p>
+    <input type="range" min="6" max="100" value="10.0" id="speed" step=".1" oninput="setSpeed();">
+    <p>10ms</p>
+  </div>
+
+  <div class="count-slider">
+    <p>Amount:</p>
+    <input type="range" min="0" max="6" value="2" id="count" step="1" oninput="setCount();">
+    <p>100</p>
+  </div>
+  <div id="stats">delay</div>
+</body>
+
+</html>
